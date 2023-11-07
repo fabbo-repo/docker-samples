@@ -1,0 +1,17 @@
+version: "2.1"
+services:
+  librespeed:
+    image: lscr.io/linuxserver/librespeed # linuxserver.io
+    container_name: librespeed
+    environment:
+      - PUID=1000 # user id
+      - GUID=1000 # group id
+      - TZ=Europe/Madrid # timezone
+      - CUSTOM_RESULTS=true # custom result page in /config/www/results/index.php
+    env_file:
+      - extras.env
+    volumes:
+      - /librespeed/config:/config
+    ports:
+      - 36000:80
+    restart: unless-stopped

@@ -1,0 +1,43 @@
+#     Username: guacadmin
+#     Password: guacadmin
+# Nota:
+# Para que funcione, en el servidor postgres en pg_hba.conf al final
+# en la linea "host all all all scram-sha-256" debe cambiarse a 
+# "host all all all trust"
+version: '2.0'
+
+services:
+  # guacd
+  guacd:
+    container_name: guacd
+    image: guacamole/guacd
+    volumes:
+      - /guacamole/drive:/drive:rw
+      - /guacamole/record:/record:rw
+    networks:
+      guacnetwork:
+    restart: unless-stopped
+
+  # guacamole
+  guacamole:
+    container_name: guacamole
+    depends_on:
+      - guacd
+    environment:
+      GUACD_HOSTNAME: guacd
+    env_file:
+      - extras1.env
+    image: guacamole/guacamole
+    links:
+      - guacd
+    networks:
+      guacnetwork:
+    ports:
+      - 37000:8080
+    restart: unless-stopped
+
+# networks
+# create a network 'guacnetwork' in mode 'bridged'
+networks:
+  guacnetwork:
+    driver: bridge

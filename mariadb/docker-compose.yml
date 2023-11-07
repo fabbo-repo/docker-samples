@@ -1,0 +1,19 @@
+version: '3.1'
+services:
+  db:
+    image: mariadb
+    env_file:
+      - extras.env
+    ports: 
+      - 36010:3306
+    volumes:
+      - /home/fabbo/docker/mariadb/init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  adminer:
+    image: adminer
+    ports: 
+      - 36011:8080
+    depends_on:
+      - db 
+    restart: unless-stopped

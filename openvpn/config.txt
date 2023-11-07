@@ -1,0 +1,2 @@
+Añadir como primer push:
+push "route 192.168.0.0 255.255.255.0"

@@ -1,0 +1,14 @@
+version: "2"
+services: 
+  plex:
+    image: linuxserver/plex
+    container_name: plex 
+    network_mode: host
+    env_file:
+      - extras.env
+    volumes: 
+      - plex/config:/config
+      - <path/to/tvseries>:/data/tvshows 
+      - </path/to/movies>:/data/movies 
+      - plex/transcode:/transcode 
+    restart: unless-stopped
