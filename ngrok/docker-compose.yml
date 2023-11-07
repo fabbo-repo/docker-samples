@@ -1,0 +1,8 @@
+version: '3'
+services:
+  ngrok:
+    image: ngrok/ngrok
+    command: ngrok tcp ${SERVER_IP}:${SERVER_PORT}
+    env_file:
+      - ngrok.env
+    restart: unless-stopped

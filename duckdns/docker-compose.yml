@@ -1,0 +1,13 @@
+version: "2.1"
+services:
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: duckdns
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - LOG_FILE=true
+    env_file:
+      - duckdns.env
+    restart: unless-stopped
