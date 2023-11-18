@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+
+  postgres:
+    image: postgres:15.2
+    container_name: postgres
+    env_file:
+      - ./postgres_db.env
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - ./database:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - db-net
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    env_file:
+      - ./pgadmin.env
+    ports:
+      - "9050:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - db-net
+
+networks:
+  db-net:

@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+
+  minio:
+    image: bitnami/minio:2023.10.16
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - ./minio.env
+    volumes:
+      - ./data:/data
+      #- ./certs/fullchain.pem:/etc/minio/certs/public.crt # Uncomment to enabe HTTPS
+      #- ./certs/privkey.pem:/etc/minio/certs/private.key # Uncomment to enabe HTTPS
+    restart: unless-stopped
+    networks:
+      - minio-net
+
+networks:
+  minio-net:
