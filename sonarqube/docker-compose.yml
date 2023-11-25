@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    volumes:
+      - sonarqube-data-volume:/opt/sonarqube/data
+      - sonarqube-extensions-volume:/opt/sonarqube/extensions
+      - sonarqube-logs-volume:/opt/sonarqube/logs
+    ports:
+      - "9000:9000"
+
+volumes:
+  sonarqube-data-volume:
+  sonarqube-extensions-volume:
+  sonarqube-logs-volume:
+
