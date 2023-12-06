@@ -1,13 +1,12 @@
 import os
-import datetime
+import sys
+import json
 import requests
 
-"""
-[Docs](https://github.com/tailscale/tailscale/blob/main/api.md)
-"""
+# [Docs](https://github.com/tailscale/tailscale/blob/main/api.md)
 
 
-def get_api_key(
+def create_api_key(
         tailscale_client_id: str,
         tailscale_client_secret: str
 ) -> str | None:
@@ -33,80 +32,102 @@ def get_api_key(
     else:
         print(f"Error requesting API key. Status code: {response.status_code}")
         print(response.text)
-        return None
+        sys.exit(-1)
 
 
-def str_to_datetime(dt_str):
-    dt, _, _ = dt_str.partition(".")
-    dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%SZ")
-    return dt
-
-
-def is_expired_auth_key(
+def create_auth_key(
         ts_api_key: str,
-        tailscale_auth_id: str,
-        tailscale_tailnet: str
-) -> str | None:
-    ts_auth_url = f"https://api.tailscale.com/api/v2/tailnet/{tailscale_tailnet}/keys/{tailscale_auth_id}"
+        tailscale_tailnet: str,
+        tailscale_tag: str
+) -> tuple | None:
+    ts_auth_url = f"https://api.tailscale.com/api/v2/tailnet/{tailscale_tailnet}/keys"
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
         "Authorization": f"Bearer {ts_api_key}"
     }
+    data = {
+        "capabilities": {
+            "devices": {
+                "create": {
+                    "reusable": True,
+                    "ephemeral": True,
+                    "tags": [f"tag:{tailscale_tag}"]
+                }
+            }
+        },
+        "expirySeconds": 7776000,
+        "description": f"VPN {tailscale_tag}"
+    }
 
     # Request auth key
-    response = requests.get(
+    response = requests.post(
         ts_auth_url,
-        headers=headers
+        headers=headers,
+        data=json.dumps(data)
     )
 
     if response.status_code == 200:
-        return str_to_datetime(response.json()["expires"]) <= datetime.datetime.now()
+        return (response.json()["id"], response.json()["key"])
     else:
         print(
-            f"Error requesting Auth key data. Status code: {response.status_code}")
+            f"Error requesting Auth key. Status code: {response.status_code}")
         print(response.text)
-        exit()
+        sys.exit(-2)
+
+
+def check_key_generator_env():
+    # Get OAuth client variables
+    tailscale_client_id = os.environ.get("TS_OAUTH_CLIENT_ID")
+    if not tailscale_client_id:
+        print("Missing TS_OAUTH_CLIENT_ID")
+        sys.exit(-5)
+    tailscale_client_secret = os.environ.get("TS_OAUTH_CLIENT_SECRET")
+    if not tailscale_client_secret:
+        print("Missing TS_OAUTH_CLIENT_SECRET")
+        sys.exit(-5)
+    # Get tailscale data variables
+    tailscale_tailnet = os.environ.get("TS_TAILNET")
+    if not tailscale_tailnet:
+        print("Missing TS_TAILNET")
+        sys.exit(-5)
+    tailscale_tag = os.environ.get("TS_TAG")
+    if not tailscale_tag:
+        print("Missing TS_TAG")
+        sys.exit(-5)
+    return (
+        tailscale_client_id,
+        tailscale_client_secret,
+        tailscale_tailnet,
+        tailscale_tag
+    )
 
 
 def main():
     """
     MAIN method
     """
-    # Get OAuth client variables
-    tailscale_client_id = os.environ.get("TS_OAUTH_CLIENT_ID")
-    if not tailscale_client_id:
-        print("Missing TS_OAUTH_CLIENT_ID")
-        return
-    tailscale_client_secret = os.environ.get("TS_OAUTH_CLIENT_SECRET")
-    if not tailscale_client_secret:
-        print("Missing TS_OAUTH_CLIENT_SECRET")
-        return
-    # Get tailscale data variables
-    tailscale_tailnet = os.environ.get("TS_TAILNET")
-    if not tailscale_tailnet:
-        print("Missing TS_TAILNET")
-        return
-    tailscale_auth_id = os.environ.get("TS_AUTH_ID")
-    if not tailscale_auth_id:
-        print("Missing TS_AUTH_ID")
-        return
+    (
+        tailscale_client_id,
+        tailscale_client_secret,
+        tailscale_tailnet,
+        tailscale_tag
+    ) = check_key_generator_env()
 
-    ts_api_key = get_api_key(
+    ts_api_key = create_api_key(
         tailscale_client_id,
         tailscale_client_secret
     )
 
     if ts_api_key:
-        is_expired = is_expired_auth_key(
+        ts_auth_id, ts_auth_key = create_auth_key(
             ts_api_key,
-            tailscale_auth_id,
-            tailscale_tailnet
+            tailscale_tailnet,
+            tailscale_tag
         )
-        if is_expired:
-            print("Key has expired")
-        else:
-            print("Key has not expired")
+        print(ts_auth_id)
+        print(ts_auth_key)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
