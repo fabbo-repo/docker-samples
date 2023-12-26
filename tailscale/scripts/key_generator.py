@@ -9,7 +9,7 @@ import requests
 def create_api_key(
         tailscale_client_id: str,
         tailscale_client_secret: str
-) -> str | None:
+) -> str:
     ts_auth_url = "https://api.tailscale.com/api/v2/oauth/token"
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"
@@ -39,7 +39,7 @@ def create_auth_key(
         ts_api_key: str,
         tailscale_tailnet: str,
         tailscale_tag: str
-) -> tuple | None:
+) -> tuple:
     ts_auth_url = f"https://api.tailscale.com/api/v2/tailnet/{tailscale_tailnet}/keys"
     headers = {
         "Accept": "application/json",

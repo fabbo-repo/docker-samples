@@ -9,7 +9,7 @@ import requests
 def get_api_key(
         tailscale_client_id: str,
         tailscale_client_secret: str
-) -> str | None:
+) -> str:
     ts_auth_url = "https://api.tailscale.com/api/v2/oauth/token"
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"
@@ -45,7 +45,7 @@ def is_expired_auth_key(
         ts_api_key: str,
         tailscale_auth_id: str,
         tailscale_tailnet: str
-) -> str | None:
+) -> str:
     ts_auth_url = f"https://api.tailscale.com/api/v2/tailnet/{tailscale_tailnet}/keys/{tailscale_auth_id}"
     headers = {
         "Accept": "application/json",

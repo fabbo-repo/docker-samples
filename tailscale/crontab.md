@@ -1,19 +1,13 @@
 # Crontab Setup
 
-1. Install requirements
+1. Open crontab editor
 
 ~~~
-pip3 install -r requirements.txt
-~~~
-
-2. Open crontab editor
-
-~~~
-sudo crontab -l
+sudo crontab -e
 ~~~
 
 3. Add task
 
 ~~~
-0 0 * * 1 cd /<PATH_TO_SCRIPTS>/ && python3 main.py
+0 0 * * 1 cd /<PATH_TO_SCRIPTS>/ && python3 scripts/main.py
 ~~~
