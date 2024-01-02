@@ -2,8 +2,7 @@ import os
 import sys
 import subprocess
 from key_check import (
-    get_api_key,
-    is_expired_auth_key
+    get_api_key
 )
 from key_generator import (
     create_api_key,
@@ -49,22 +48,13 @@ def main():
     tailscale_auth_id = env_variables.get("TS_AUTH_ID")
 
     if tailscale_auth_id:
-        is_expired = is_expired_auth_key(
-            ts_api_key,
-            tailscale_auth_id,
-            tailscale_tailnet
+        print("Creating new API Key...")
+        create_and_replace_auth_key(
+            tailscale_client_id,
+            tailscale_client_secret,
+            tailscale_tailnet,
+            tailscale_tag
         )
-        if is_expired:
-            print("Key has expired, creating new one...")
-            create_and_replace_auth_key(
-                tailscale_client_id,
-                tailscale_client_secret,
-                tailscale_tailnet,
-                tailscale_tag
-            )
-        else:
-            print("Key has not expired, keeping old one")
-            sys.exit(0)
     else:
         create_and_replace_auth_key(
             tailscale_client_id,
