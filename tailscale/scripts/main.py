@@ -27,7 +27,7 @@ def main():
     with open(TAILSCALE_SCRIPT_ENV_PATH, "r", encoding="utf8") as file:
         for line in file.read().splitlines():
             env_values = line.split("=")
-            env_variables[env_values[0]] = env_values[1]
+            env_variables[env_values[0]] = "=".join(env_values[1:])
 
     (
         tailscale_client_id,
@@ -95,7 +95,7 @@ def create_and_replace_auth_key(
         with open(TAILSCALE_ENV_PATH, "r", encoding="utf8") as file:
             for line in file.read().splitlines():
                 env_values = line.split("=")
-                service_env_variables[env_values[0]] = env_values[1]
+                service_env_variables[env_values[0]] = "=".join(env_values[1:])
         print("Overriding service env file")
         with open(TAILSCALE_ENV_PATH, "w", encoding="utf8") as file:
             service_env_variables["TS_AUTHKEY"] = ts_auth_key
