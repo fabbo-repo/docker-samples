@@ -1,0 +1,20 @@
+version: '3.6'
+
+services:
+  chatbot-ollama:
+    image: ghcr.io/ivanfioravanti/chatbot-ollama:main
+    ports:
+      - 3000:3000
+    environment:
+      - DEFAULT_MODEL=mistral
+      - OLLAMA_HOST=http://ollama:11434
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ./ollama-models:/ollama/models
+    ports:
+      - 11434:11434
+    environment:
+      - OLLAMA_MODELS=/ollama/models
+
