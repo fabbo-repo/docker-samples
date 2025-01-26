@@ -1,27 +1,48 @@
 version: '2'
 services:
 
-  balhom-keycloak:
-    image: bitnami/keycloak:21.1.1
+  keycloak:
+    image: bitnami/keycloak:26.1.0
     container_name: keycloak
     ports:
       - "9080:8080"
       #- "39081:8443" # Uncomment for HTTPS
-      # environment:
+    environment:
+      - KEYCLOAK_DATABASE_HOST=keycloak-db
+      - KEYCLOAK_DATABASE_PORT=5432
+      - KEYCLOAK_DATABASE_NAME=keycloakdb
+      - KEYCLOAK_DATABASE_USER=keycloak_user
+      - KEYCLOAK_DATABASE_PASSWORD=password
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=password
+      - KEYCLOAK_MANAGEMENT_USER=manager
+      - KEYCLOAK_MANAGEMENT_PASSWORD=password
       #- KEYCLOAK_PRODUCTION=true # Uncomment to enabe HTTPS
       #- KEYCLOAK_ENABLE_HTTPS=true # Uncomment to enabe HTTPS
       #- KEYCLOAK_HTTPS_USE_PEM=true # Uncomment for HTTPS
       #- KEYCLOAK_HTTPS_CERTIFICATE_KEY_FILE=/certs/privkey.pem # Uncomment for HTTPS
       #- KEYCLOAK_HTTPS_CERTIFICATE_FILE=/certs/fullchain.pem # Uncomment for HTTPS
-    env_file:
-      - keycloak.env
     restart: unless-stopped
-    volumes:
+    #volumes:
       #- ./certs:/certs:ro # Uncomment to enabe HTTPS
-      - ./app-theme:/opt/bitnami/keycloak/themes/app-theme
     networks:
       keycloak-net:
 
+  keycloak-db:
+    image: postgres:17.2
+    container_name: keycloak-db
+    environment:
+      - POSTGRES_DB=keycloakdb
+      - POSTGRES_USER=keycloak_user
+      - POSTGRES_PASSWORD=password
+    restart: unless-stopped
+    volumes:
+      - keycloak-db-volume:/var/lib/postgresql/data
+    networks:
+      keycloak-net:
+
+volumes:
+  keycloak-db-volume:
 
 networks:
   keycloak-net:
